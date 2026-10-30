@@ -42,12 +42,12 @@ locations:
   remote_ok: [Canada, Worldwide, Anywhere, North America, Americas]
 
 sources:
-  # Adzuna: broad search. Needs a free key (README, step 3). Delete this block to skip it.
-  adzuna:
-    country: ca
-    queries: ["identity access management", "IAM analyst", "Okta", "identity engineer", "cybersecurity analyst"]
-    where: Calgary          # leave out to search all of Canada
-    max_days_old: 3
+  # Adzuna: broad search across many job sites. Off by default: after 25 test calls
+  # it costs £8/month (README, step 3). To use it, remove the # signs and add the secrets.
+  # adzuna:
+  #   country: ca
+  #   queries: ["identity access management", "IAM analyst", "Okta", "identity engineer", "cybersecurity analyst"]
+  #   max_days_old: 3   # no "where": all of Canada, so remote roles show up too
 
   # Company job boards: the name at the end of the company's careers link.
   #   boards.greenhouse.io/okta     -> greenhouse: [okta]
