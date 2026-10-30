@@ -13,14 +13,13 @@ It never applies for you, and it never scrapes sites that forbid it (LinkedIn, I
 | | Needed? | Cost |
 | --- | --- | --- |
 | A GitHub account | Yes | Free |
-| An Adzuna API key (broad job search) | Optional | 25 test calls, then £8/month |
 | A Notion job tracker (to receive jobs there) | Optional | Free |
 | A Claude plan with Claude Code (for `/tailor` and the weekly routine) | Optional | Your existing plan |
 | A Claude API key | **No** | – |
 
-Without Adzuna, the daily run costs nothing: it uses GitHub Actions' free minutes (a run takes 1–2
-minutes) and free sources (company job boards and Remotive). The filter is plain keyword rules; no
-AI runs in the daily job.
+The daily run costs nothing: it uses GitHub Actions' free minutes (a run takes 1–2 minutes) and free
+sources that need no key: company job boards (Greenhouse, Lever, Ashby) and remote job boards
+(Remotive, Jobicy). The filter is plain keyword rules; no AI runs in the daily job.
 
 ## Set up your copy (about 30 minutes)
 
@@ -39,15 +38,14 @@ AI runs in the daily job.
    - `keywords`: the job titles and words for your field. The example is for identity and access
      management (IAM). For another field, replace the lists with your field's titles, tools and terms.
 
-3. **Optional: Adzuna (paid).** Adzuna searches many job sites at once, but after 25 test calls it
-   costs £8/month, and a daily run uses about one call per search word. Most people can skip it. To
-   use it: sign up at [developer.adzuna.com](https://developer.adzuna.com), subscribe, copy the
-   *Application ID* and *Application Key*, and remove the `#` signs from the `adzuna:` block in your
-   profile.
+3. **Set up email alerts on the big job sites.** Job Radar doesn't read LinkedIn, Indeed or Job Bank
+   (their terms forbid it), and it can't read employers' Workday career sites. Each of those offers
+   free email alerts for a saved search: set one up on each with the same job titles as your
+   profile. Together with Job Radar, that covers most openings.
 
-4. **Add your secrets** (only if you use Adzuna or Notion). In your repo: **Settings → Secrets and
-   variables → Actions → New repository secret**. Add `ADZUNA_APP_ID` and `ADZUNA_APP_KEY` for
-   Adzuna, `NOTION_TOKEN` for Notion. Secrets are encrypted and never appear in logs or files.
+4. **Add your secret** (only if you use Notion). In your repo: **Settings → Secrets and variables →
+   Actions → New repository secret**. Add `NOTION_TOKEN` (see "Send jobs to Notion" below). Secrets
+   are encrypted and never appear in logs or files.
 
 5. **Try a dry run.** Go to **Actions → Daily job radar → Run workflow**, tick *Dry run*, and run it.
    Open the run's log to see what it found and what it dropped, and why. Adjust your keywords if needed.
@@ -159,7 +157,7 @@ Needs Node.js 22.9 or newer.
 ```bash
 npm install
 cp config/profile.example.yml config/profile.yml   # then edit it
-cp .env.example .env                               # then add your keys, if you use Adzuna or Notion
+cp .env.example .env                               # then add NOTION_TOKEN, if you use Notion
 npm run dry-run     # prints matches; opens no Issues
 npm run check       # type-check and tests
 ```

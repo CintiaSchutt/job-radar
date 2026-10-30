@@ -20,7 +20,7 @@ const { jobs, problems } = await collectJobs(profile);
 console.log(`Collected ${jobs.length} jobs.`);
 problems.forEach((problem) => console.warn(`  Skipped ${problem}`));
 
-// The same job can come from two sources (a company board and Adzuna): keep the first.
+// The same job can come from two sources (a company board and a remote job board): keep the first.
 const unique = new Map<string, (typeof jobs)[number]>();
 for (const job of jobs) {
   const key = `${job.company}|${job.title}`.toLowerCase().replace(/[^a-z0-9|]/g, '');

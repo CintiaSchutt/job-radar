@@ -52,7 +52,7 @@ export interface Profile {
     remote_ok: string[];
   };
   sources: {
-    adzuna?: { country: string; queries: string[]; where?: string; max_days_old?: number };
+    jobicy?: { geo: string; queries: string[] };
     greenhouse?: string[];
     lever?: string[];
     ashby?: string[];

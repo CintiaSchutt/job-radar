@@ -64,8 +64,8 @@ test('fills the columns, with Application site only for company job boards', () 
   assert.deepEqual(board.Stage, { status: { name: 'To review' } });
   assert.ok(board['Application site']);
 
-  const adzuna = properties(match({ source: 'Adzuna', remote: false, location: 'Calgary, AB' }), target);
-  assert.equal(adzuna['Application site'], undefined);
-  assert.equal(adzuna.Type, undefined);
-  assert.ok(adzuna['Posting URL']);
+  const listing = properties(match({ source: 'Remotive', remote: false, location: 'Calgary, AB' }), target);
+  assert.equal(listing['Application site'], undefined);
+  assert.equal(listing.Type, undefined);
+  assert.ok(listing['Posting URL']);
 });

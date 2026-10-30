@@ -1,13 +1,13 @@
 import type { Job, Profile } from '../types.ts';
-import { adzuna } from './adzuna.ts';
 import { ashby } from './ashby.ts';
 import { greenhouse } from './greenhouse.ts';
+import { jobicy } from './jobicy.ts';
 import { lever } from './lever.ts';
 import { remotive } from './remotive.ts';
 
 /**
  * Runs every source in the profile at the same time. A source that fails (wrong board
- * name, site down, missing key) is reported and skipped, so the others still count.
+ * name, site down) is reported and skipped, so the others still count.
  */
 export async function collectJobs(profile: Profile): Promise<{ jobs: Job[]; problems: string[] }> {
   const { sources } = profile;
@@ -16,7 +16,7 @@ export async function collectJobs(profile: Profile): Promise<{ jobs: Job[]; prob
     ...(sources.lever ?? []).map((company) => ({ name: `Lever ${company}`, run: () => lever(company) })),
     ...(sources.ashby ?? []).map((board) => ({ name: `Ashby ${board}`, run: () => ashby(board) })),
   ];
-  if (sources.adzuna) tasks.push({ name: 'Adzuna', run: () => adzuna(sources.adzuna!) });
+  if (sources.jobicy) tasks.push({ name: 'Jobicy', run: () => jobicy(sources.jobicy!) });
   if (sources.remotive) tasks.push({ name: 'Remotive', run: () => remotive(sources.remotive!) });
 
   const results = await Promise.allSettled(tasks.map((task) => task.run()));
