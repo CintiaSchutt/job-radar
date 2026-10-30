@@ -80,6 +80,12 @@ If you already track applications in a Notion database, Job Radar can add each m
 new row, written into your own column names. It checks your columns before writing anything, and it
 skips jobs whose link is already in the database (for example, ones you added by hand).
 
+**No tracker yet?** Start from the
+[Job Application Tracker template](https://grave-custard-f07.notion.site/Job-Application-Tracker-Template-b8ba9d30f328838e936a818a5ced2005):
+open it, click **Duplicate** (top right), and choose your workspace. Notion copies the whole tracker
+into your account, and the copy is yours to change. Its columns match the commented example in
+`config/profile.example.yml`, so the mapping in step 4 needs few or no changes.
+
 1. **Create an integration:** go to [notion.so/profile/integrations](https://www.notion.so/profile/integrations)
    (or in Notion, **Settings → Connections → Develop or manage integrations**) and click **New integration**. Make it an *Internal* integration for your workspace and copy
    its secret. (Notion moves these menus now and then; search its help for "internal integration" if
