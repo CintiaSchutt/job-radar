@@ -1,0 +1,64 @@
+name: Daily job radar
+
+on:
+  schedule:
+    # 13:00 UTC = 7 am in Calgary in summer, 6 am in winter. GitHub may start it a few minutes late.
+    - cron: '0 13 * * *'
+  # Adds a "Run workflow" button in the Actions tab, with a dry-run option.
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: print the matches, open no Issues'
+        type: boolean
+        default: false
+
+# Least privilege: save data/seen.json and open Issues, nothing else.
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: radar
+  cancel-in-progress: false
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    steps:
+      # Actions are pinned to a full commit SHA (version in the comment), so a moved tag cannot change what runs.
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The template itself has no profile.yml, so it skips the run instead of failing.
+      - name: Check for a profile
+        id: profile
+        run: |
+          if [ -f config/profile.yml ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; else echo "No config/profile.yml yet: nothing to do."; fi
+
+      - name: Set up Node.js
+        if: steps.profile.outputs.ready == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        if: steps.profile.outputs.ready == 'true'
+        run: npm ci
+
+      - name: Find jobs
+        if: steps.profile.outputs.ready == 'true'
+        run: npm run ${{ inputs.dry_run && 'dry-run' || 'radar' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+
+      - name: Remember jobs seen
+        if: steps.profile.outputs.ready == 'true' && !inputs.dry_run
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/seen.json
+          git diff --cached --quiet || git commit -m "Remember jobs seen on $(date -u +%F)"
+          git push
