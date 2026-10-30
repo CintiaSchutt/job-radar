@@ -53,6 +53,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
           ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
 
       - name: Remember jobs seen
         if: steps.profile.outputs.ready == 'true' && !inputs.dry_run

@@ -83,3 +83,31 @@ export function judge(job: Job, profile: Profile): Verdict {
 
   return { keep: true, score, reasons, flags };
 }
+
+export interface SkillMatch {
+  /** Your skills that the job mentions. */
+  have: string[];
+  /** Products and concepts the job mentions that your skills list does not cover. */
+  missing: string[];
+}
+
+/**
+ * Compares the job with person.skills, like a quick ATS keyword check. It does not change the
+ * score: it helps you choose, and /tailor does the full check against your résumé.
+ * A skill covers a keyword when one contains the other, so "OAuth 2.0" covers "OAuth".
+ * One skill can list other names after " / ": "OpenID Connect / OIDC" matches either.
+ */
+export function skillMatch(job: Job, profile: Profile): SkillMatch | undefined {
+  const skills = profile.person.skills ?? [];
+  if (!skills.length) return undefined;
+  const text = `${job.title} ${job.description}`;
+  const names = (skill: string) => skill.split(' / ').map((name) => name.trim());
+  const covered = (term: string) =>
+    skills.flatMap(names).some((name) => {
+      const [a, b] = [name.toLowerCase(), term.toLowerCase()];
+      return a.includes(b) || b.includes(a);
+    });
+  const have = skills.filter((skill) => found(text, names(skill)).length);
+  const missing = found(text, [...profile.keywords.products, ...profile.keywords.concepts]).filter((term) => !covered(term));
+  return { have, missing };
+}

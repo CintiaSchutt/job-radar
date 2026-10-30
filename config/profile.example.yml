@@ -12,6 +12,27 @@ person:
   summary: >
     Software developer with front-end experience who has built OAuth 2.0 and
     OpenID Connect sign-in. Moving into identity and access management (IAM).
+  # Skills you really have. Each match shows which of the job's keywords you
+  # have and which are missing, like a quick ATS check. Leave empty to skip.
+  # Give other names after " / ", e.g. "OpenID Connect / OIDC".
+  skills: [TypeScript, Angular, "OAuth 2.0", "OpenID Connect / OIDC", Okta]
+
+# Where matches go. GitHub Issues is on unless you turn it off.
+outputs:
+  github_issues: true
+  # Optional: add matches to an existing Notion database instead of (or as well
+  # as) Issues. Needs a NOTION_TOKEN secret: see README, "Send jobs to Notion".
+  # notion:
+  #   database: "https://www.notion.so/…your database link…"
+  #   stage_for_new: To review        # an option of your Stage column
+  #   columns:                        # YOUR column names; leave a line out to skip it
+  #     company: Name                 # the title column
+  #     title: Position               # text
+  #     type: Type                    # select; set to remote or hybrid when the posting says so
+  #     stage: Stage                  # status
+  #     posting_url: Posting URL      # url, always the job link
+  #     application_url: Application site   # url, only for company job boards
+  #     score: Fit                    # number
 
 locations:
   # On-site or hybrid jobs in these places are kept.

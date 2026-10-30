@@ -14,11 +14,36 @@ export interface Job {
   postedAt?: string;
 }
 
+/** An existing Notion database to add matches to, mapped to its own column names. */
+export interface NotionSettings {
+  /** The database's link or id. */
+  database: string;
+  /** The Stage option new jobs start in, e.g. "To review". */
+  stage_for_new?: string;
+  /** Your column names. Leave one out and that field is skipped. */
+  columns: {
+    company: string;
+    title?: string;
+    type?: string;
+    stage?: string;
+    posting_url?: string;
+    application_url?: string;
+    score?: string;
+  };
+}
+
 /** The settings in config/profile.yml. */
 export interface Profile {
   person: {
     name: string;
     summary: string;
+    /** Skills you really have, compared with each job's keywords. */
+    skills?: string[];
+  };
+  /** Where matches go. Without this block: GitHub Issues only. */
+  outputs?: {
+    github_issues?: boolean;
+    notion?: NotionSettings;
   };
   locations: {
     /** Places you can work on site or hybrid, e.g. Calgary. */

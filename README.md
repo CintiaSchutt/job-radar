@@ -1,7 +1,8 @@
 # Job Radar
 
 A daily job-search helper. Every morning it collects new postings from job boards, keeps the ones
-that match your profile, and opens a GitHub Issue for each, so you get them as notifications. You
+that match your profile, and opens a GitHub Issue for each (or adds a row to your Notion job
+tracker), so you get them as notifications. You
 choose which ones to apply for. If you use Claude Code, a `/tailor` command drafts the application
 from your own résumé.
 
@@ -13,6 +14,7 @@ It never applies for you, and it never scrapes sites that forbid it (LinkedIn, I
 | --- | --- | --- |
 | A GitHub account | Yes | Free |
 | An Adzuna API key (broad job search) | Recommended | Free |
+| A Notion job tracker (to receive jobs there) | Optional | Free |
 | A Claude plan with Claude Code (for `/tailor` and the weekly routine) | Optional | Your existing plan |
 | A Claude API key | **No** | – |
 
@@ -28,6 +30,8 @@ costs nothing. The filter is plain keyword rules; no AI runs in the daily job.
    `config/profile.yml` and edit it. You can do this on github.com: open the example, copy its text,
    then **Add file → Create new file**, name it `config/profile.yml`, paste and edit.
    - `summary`: 3–5 true lines about you.
+   - `skills`: skills you really have. Each job then shows which of its keywords you have and
+     which are missing.
    - `locations`: where you can work.
    - `sources`: Adzuna search words and the companies you want to watch (the file explains how to
      find a company's board name).
@@ -57,10 +61,50 @@ costs nothing. The filter is plain keyword rules; no AI runs in the daily job.
 
 ## Every day
 
-- Read the new Issues. Each one shows the score, why it matched, anything to check, and the link.
+- Read the new Issues (or Notion rows). Each one shows the score, why it matched, anything to check,
+  the link and, if you listed `skills`, which of the job's keywords you have and which are missing:
+
+  ```
+  Skills match: 3 of 5
+  Have: Okta, OAuth 2.0, TypeScript
+  Missing: SAML, SCIM
+  ```
+
 - Not interested? **Close** the Issue. Interested? Move it on your board, or add a comment.
 - Jobs you've already seen never come back. Up to `max_per_day` new ones arrive each morning, best
   first; extra matches wait for the next day.
+
+## Send jobs to Notion (optional)
+
+If you already track applications in a Notion database, Job Radar can add each match there as a
+new row, written into your own column names. It checks your columns before writing anything, and it
+skips jobs whose link is already in the database (for example, ones you added by hand).
+
+1. **Create an integration:** go to [notion.so/profile/integrations](https://www.notion.so/profile/integrations)
+   (or in Notion, **Settings → Connections → Develop or manage integrations**) and click **New integration**. Make it an *Internal* integration for your workspace and copy
+   its secret. (Notion moves these menus now and then; search its help for "internal integration" if
+   they look different.)
+2. **Give it access to your tracker only:** open the tracker, click **… → Connections**, and add the
+   integration. It can't see anything else in your workspace.
+3. **Add the secret:** in your repo, add a repository secret named `NOTION_TOKEN` (as in step 4).
+4. **Map your columns:** uncomment the `notion:` block under `outputs` in `config/profile.yml`. Put
+   in the database link (open the database as a full page and copy the link) and *your* column names.
+   Leave out any line your tracker has no column for. Set `github_issues: false` if you only want Notion.
+5. **Check it:** run a dry run. When the settings match your database, the log says *"Notion
+   settings match the database."* If not, it says exactly which column or option is wrong.
+
+| Setting | Your column must be | Job Radar writes |
+| --- | --- | --- |
+| `company` | the title column | the company |
+| `title` | text | the job title |
+| `type` | select | your *remote* or *hybrid* option, when the posting says so |
+| `stage` | status | the `stage_for_new` option, e.g. *To review* |
+| `posting_url` | URL | the job link |
+| `application_url` | URL | the job link, for company job boards (where you apply directly) |
+| `score` | number | the score |
+
+The page body gets the same summary as an Issue, plus the start of the description. Option names
+are matched ignoring upper/lower case.
 
 ## Tune your results
 
@@ -83,9 +127,15 @@ at least 3 field words in the description).
 1. Clone your repo to your computer and open it in Claude Code.
 2. Put your master résumé in `resume/`, for example `resume/resume.md`. That folder is ignored by
    Git, so the résumé never leaves your computer.
-3. Type `/tailor 12` (the Issue number). Claude reads the job and your résumé, and writes a draft to
-   `applications/…/draft.md`: résumé bullets, a cover letter and interview prep. It uses only your
-   real experience and names the gaps.
+3. Type `/tailor 12` (the Issue number) or `/tailor <job link>`. Claude reads the job and your
+   résumé, and writes a draft to `applications/…/draft.md`: an **ATS keyword check**, résumé bullets,
+   a cover letter and interview prep. It uses only your real experience and names the gaps.
+
+**The ATS check:** applicant tracking systems turn your résumé into fields that recruiters search by
+keyword. The draft lists the posting's key terms as found or missing in your résumé, suggests using
+the posting's exact wording where it's true for you (for example "OpenID Connect (OIDC)"), and flags
+formatting that résumé parsers often misread: tables, columns, text in headers, images. It never
+suggests adding a skill you don't have.
 4. Review and edit the draft, then apply yourself.
 
 ## Weekly company suggestions (optional, Claude Code)
@@ -112,6 +162,7 @@ config/profile.example.yml   the settings template (your copy: config/profile.ym
 src/sources/                 one file per job source, all returning the same Job shape
 src/filter.ts                the scoring rules (tested in src/filter.test.ts)
 src/publish.ts               opens the GitHub Issues
+src/notion.ts                the optional Notion output (tested in src/notion.test.ts)
 src/seen.ts                  remembers jobs already looked at (data/seen.json)
 src/main.ts                  runs the steps in order
 .github/workflows/daily.yml  the daily schedule
@@ -121,7 +172,8 @@ src/main.ts                  runs the steps in order
 ## Privacy and security
 
 - Your copy is private. The template holds no personal data.
-- Keys live in GitHub secrets, never in files.
+- Keys live in GitHub secrets, never in files. The Notion integration can only reach the one
+  database you connect it to.
 - The workflow can only save `data/seen.json` and open Issues in your repo.
 - Your résumé and application drafts stay on your computer (`resume/` and `applications/` are ignored by Git).
 - Actions are pinned to exact versions, and Dependabot proposes updates monthly.

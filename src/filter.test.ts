@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { loadProfile } from './config.ts';
-import { judge } from './filter.ts';
+import { judge, skillMatch } from './filter.ts';
 import type { Job } from './types.ts';
 
 const profile = loadProfile('config/profile.example.yml');
@@ -53,4 +53,23 @@ test('keeps remote Canada, and flags remote jobs with no country', () => {
 test('matches short words only as whole words', () => {
   const verdict = judge(job({ title: 'William Analyst', description: 'Accounting.' }), profile);
   assert.equal(verdict.keep, false);
+});
+
+test('skill match lists the job keywords you have and the ones you are missing', () => {
+  const withSkills = { ...profile, person: { ...profile.person, skills: ['OAuth 2.0', 'Okta', 'TypeScript'] } };
+  const match = skillMatch(job({ description: 'We use Okta, OAuth, SAML and TypeScript.' }), withSkills);
+  assert.deepEqual(match?.have, ['Okta', 'TypeScript']);
+  assert.deepEqual(match?.missing, ['SAML']);
+});
+
+test('a skill can list other names after " / "', () => {
+  const withSkills = { ...profile, person: { ...profile.person, skills: ['OpenID Connect / OIDC'] } };
+  const match = skillMatch(job({ description: 'Experience with OIDC and SAML.' }), withSkills);
+  assert.deepEqual(match?.have, ['OpenID Connect / OIDC']);
+  assert.deepEqual(match?.missing, ['SAML']);
+});
+
+test('skill match is skipped when no skills are listed', () => {
+  const noSkills = { ...profile, person: { ...profile.person, skills: [] } };
+  assert.equal(skillMatch(job({}), noSkills), undefined);
 });
