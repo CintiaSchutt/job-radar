@@ -1,0 +1,11 @@
+node_modules/
+
+# Local secrets for running on your computer (GitHub Actions uses repository secrets instead)
+.env
+
+# Your résumé and application drafts stay on your computer
+resume/*
+!resume/README.md
+applications/
+
+.DS_Store

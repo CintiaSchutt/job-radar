@@ -1,0 +1,75 @@
+# Job Radar profile: the only file you need to edit.
+#
+# Copy this file to config/profile.yml and change it to fit your search.
+# Lists use [a, b, c] or one "- item" per line; both work.
+# Matching ignores upper/lower case. Short words such as IAM only match as
+# whole words, so "IAM" does not match "William".
+
+person:
+  name: Your Name
+  # 3-5 lines about you, facts only, no address or phone. Used by the /tailor
+  # skill and the optional weekly routine, never sent anywhere by the daily run.
+  summary: >
+    Software developer with front-end experience who has built OAuth 2.0 and
+    OpenID Connect sign-in. Moving into identity and access management (IAM).
+
+locations:
+  # On-site or hybrid jobs in these places are kept.
+  preferred: [Calgary, Alberta]
+  # A remote job is kept when its location mentions one of these. A remote job
+  # with no country at all ("Remote") is kept with fewer points, marked "check".
+  remote_ok: [Canada, Worldwide, Anywhere, North America, Americas]
+
+sources:
+  # Adzuna: broad search. Needs a free key (README, step 3). Delete this block to skip it.
+  adzuna:
+    country: ca
+    queries: ["identity access management", "IAM analyst", "Okta", "identity engineer", "cybersecurity analyst"]
+    where: Calgary          # leave out to search all of Canada
+    max_days_old: 3
+
+  # Company job boards: the name at the end of the company's careers link.
+  #   boards.greenhouse.io/okta     -> greenhouse: [okta]
+  #   jobs.lever.co/acme            -> lever: [acme]
+  #   jobs.ashbyhq.com/1password    -> ashby: [1password]
+  greenhouse: [okta, pingidentity, hootsuite]
+  lever: []
+  ashby: [1password, wealthsimple, benevity, neo-financial, jobber]
+
+  # Remotive: remote jobs. Delete this block to skip it.
+  remotive:
+    queries: [identity, security]
+
+keywords:
+  # Words in the job TITLE.
+  tier1_titles: ["identity and access", "IAM", "identity engineer", "identity analyst", "access management",
+                 "IGA", "identity governance", "PAM", "privileged access", "CIAM", "SSO", "authentication",
+                 "directory services"]
+  tier2_titles: ["security engineer", "cloud security", "security analyst", "application security",
+                 "security developer", "cybersecurity"]
+  tier3_titles: ["software developer", "software engineer", "full stack", "full-stack", "frontend",
+                 "front-end", "backend", "platform engineer"]
+  # Words in the job DESCRIPTION.
+  products: [Okta, Auth0, "Entra ID", "Azure AD", "Azure AD B2C", "Ping Identity", ForgeRock, SailPoint,
+             Saviynt, CyberArk, Keycloak, "Active Directory"]
+  concepts: [OAuth, OIDC, "OpenID Connect", SAML, SCIM, LDAP, MFA, passkeys, WebAuthn, "zero trust",
+             RBAC, ABAC, "least privilege"]
+  # A job is dropped when its title has one of these...
+  exclude_titles: [principal, staff, director, "head of", manager, "account executive", sales, intern]
+  # ...or its description has one of these.
+  exclude_phrases: ["security clearance", "US citizens only", "must be a US citizen", "10+ years"]
+
+scoring:
+  keep_at: 6          # a job needs at least this many points
+  max_per_day: 10     # at most this many Issues a day; the rest wait for tomorrow
+  points:
+    tier1: 5
+    tier2: 3
+    tier3: 1
+    product: 2        # per product found in the description...
+    product_max: 6    # ...up to this many points
+    concept: 1
+    concept_max: 4
+    preferred_location: 3
+    remote_ok: 2
+    remote_unclear: 1

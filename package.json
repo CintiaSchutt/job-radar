@@ -1,0 +1,24 @@
+{
+  "name": "job-radar",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A daily job-search helper: collects postings, keeps the ones that match your profile, and opens a GitHub Issue for each.",
+  "engines": {
+    "node": ">=22.9"
+  },
+  "scripts": {
+    "radar": "tsx --env-file-if-exists=.env src/main.ts",
+    "dry-run": "tsx --env-file-if-exists=.env src/main.ts --dry-run",
+    "test": "tsx --test src/*.test.ts",
+    "check": "tsc --noEmit && npm test"
+  },
+  "dependencies": {
+    "yaml": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}
