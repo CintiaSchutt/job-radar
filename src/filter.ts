@@ -52,16 +52,16 @@ export function judge(job: Job, profile: Profile): Verdict {
   } else if (job.remote && !OTHER_PLACES.test(job.location)) {
     score += points.remote_unclear;
     reasons.push('remote');
-    flags.push('Location unclear: check that Canada is allowed');
+    flags.push('Location unclear: check that your location is allowed');
   } else {
     return drop(`location "${job.location}"`);
   }
 
   // 3. Title: the highest tier that matches.
   const tiers = [
-    { words: keywords.tier1_titles, points: points.tier1, label: 'IAM title' },
+    { words: keywords.tier1_titles, points: points.tier1, label: 'strong title' },
     { words: keywords.tier2_titles, points: points.tier2, label: 'related title' },
-    { words: keywords.tier3_titles, points: points.tier3, label: 'developer title' },
+    { words: keywords.tier3_titles, points: points.tier3, label: 'possible title' },
   ];
   const tier = tiers.find((t) => found(job.title, t.words).length);
   if (tier) {
