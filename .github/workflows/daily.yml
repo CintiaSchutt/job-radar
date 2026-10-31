@@ -2,7 +2,7 @@ name: Daily job radar
 
 on:
   schedule:
-    # 13:00 UTC = 7 am in Calgary in summer, 6 am in winter. GitHub may start it a few minutes late.
+    # 13:00 UTC = 7 am in Calgary.
     - cron: '0 13 * * *'
   # Adds a "Run workflow" button in the Actions tab, with a dry-run option.
   workflow_dispatch:
