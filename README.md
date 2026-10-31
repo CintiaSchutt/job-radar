@@ -95,7 +95,8 @@ into your account, and the copy is yours to change. Its columns match the commen
    integration. It can't see anything else in your workspace.
 3. **Add the secret:** in your repo, add a repository secret named `NOTION_TOKEN` (as in step 4).
 4. **Map your columns:** uncomment the `notion:` block under `outputs` in `config/profile.yml`. Put
-   in the database link (open the database as a full page and copy the link) and *your* column names.
+   in your tracker's link (**Share → Copy link**) and *your* column names. If the link is a page that
+   holds the tracker, as in the template, Job Radar finds the database inside it that has your columns.
    Leave out any line your tracker has no column for. Set `github_issues: false` if you only want Notion.
 5. **Check it:** run a dry run. When the settings match your database, the log says *"Notion
    settings match the database."* If not, it says exactly which column or option is wrong.

@@ -91,13 +91,70 @@ export function checkSchema(settings: NotionSettings, properties: Record<string,
   };
 }
 
-/** Reads the database's columns and checks them. Run once, before publishing. */
-export async function connectNotion(settings: NotionSettings): Promise<NotionTarget> {
-  const database = await notion<{ data_sources: { id: string }[] }>(`/databases/${databaseId(settings.database)}`);
+interface Block {
+  id: string;
+  type: string;
+  has_children: boolean;
+  child_database?: { title: string };
+}
+
+interface Schema {
+  dataSourceId: string;
+  properties: Record<string, Property>;
+}
+
+async function schemaOf(databaseId: string): Promise<Schema> {
+  const database = await notion<{ data_sources: { id: string }[] }>(`/databases/${databaseId}`);
   const dataSourceId = database.data_sources[0]?.id;
   if (!dataSourceId) throw new Error('This Notion database has no data source');
   const source = await notion<{ properties: Record<string, Property> }>(`/data_sources/${dataSourceId}`);
-  return checkSchema(settings, source.properties, dataSourceId);
+  return { dataSourceId, properties: source.properties };
+}
+
+/** Databases inside a page, also inside columns, callouts and toggles (not inside sub-pages). */
+async function databasesIn(blockId: string, depth = 0): Promise<Block[]> {
+  const { results } = await notion<{ results: Block[] }>(`/blocks/${blockId}/children?page_size=100`);
+  const found: Block[] = [];
+  for (const block of results) {
+    if (block.type === 'child_database') found.push(block);
+    else if (block.has_children && block.type !== 'child_page' && block.type !== 'unsupported' && depth < 3) {
+      found.push(...(await databasesIn(block.id, depth + 1)));
+    }
+  }
+  return found;
+}
+
+/**
+ * Reads the database's columns and checks them. Run once, before publishing.
+ * The link often points at the page that holds the tracker (as in the shared template), not the
+ * database itself. Then it looks inside the page and picks the database that has your columns.
+ */
+export async function connectNotion(settings: NotionSettings): Promise<NotionTarget> {
+  const id = databaseId(settings.database);
+  try {
+    const { dataSourceId, properties } = await schemaOf(id);
+    return checkSchema(settings, properties, dataSourceId);
+  } catch (error) {
+    if (!(error instanceof Error && /is a page, not a database/.test(error.message))) throw error;
+  }
+
+  const columns = Object.values(settings.columns).filter((c): c is string => !!c);
+  const candidates = await databasesIn(id);
+  const matches: Schema[] = [];
+  for (const block of candidates) {
+    const schema = await schemaOf(block.id);
+    // A second view of the same tracker shows up as another database with the same data source.
+    const seen = matches.some((match) => match.dataSourceId === schema.dataSourceId);
+    if (!seen && columns.every((column) => schema.properties[column])) matches.push(schema);
+  }
+  if (matches.length === 1) return checkSchema(settings, matches[0].properties, matches[0].dataSourceId);
+
+  const titles = candidates.map((block) => `"${block.child_database?.title || 'Untitled'}"`).join(', ') || 'none';
+  throw new Error(
+    matches.length
+      ? `Several databases on the Notion page have your columns: open the tracker as a full page and use its link`
+      : `No database on the Notion page has all your columns (${columns.join(', ')}). Databases found: ${titles}`,
+  );
 }
 
 const text = (content: string, url?: string) => [{ type: 'text', text: { content: content.slice(0, 2000), link: url ? { url } : null } }];
